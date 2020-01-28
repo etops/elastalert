@@ -1,5 +1,5 @@
-FROM alpine:latest as py-ea
-ARG ELASTALERT_VERSION=v0.2.0b2
+FROM alpine:3.9 as py-ea
+ARG ELASTALERT_VERSION=v0.1.39
 ENV ELASTALERT_VERSION=${ELASTALERT_VERSION}
 # URL from which to download Elastalert.
 ARG ELASTALERT_URL=https://github.com/Yelp/elastalert/archive/$ELASTALERT_VERSION.zip
@@ -22,9 +22,11 @@ WORKDIR "${ELASTALERT_HOME}"
 # see: https://github.com/Yelp/elastalert/issues/1654
 RUN sed -i 's/jira>=1.0.10/jira>=1.0.10,<1.0.15/g' setup.py && \
     python setup.py install && \
+    sed -i 's/stomp.py>=4.1.17/stomp.py==4.1.22/g' requirements.txt && \
+    sed -i 's/elasticsearch/elasticsearch>=6.0.0,<7.0.0/g' requirements.txt && \
     pip install -r requirements.txt
 
-FROM node:alpine
+FROM node:12.14.1-alpine3.9
 LABEL maintainer="BitSensor <dev@bitsensor.io>"
 # Set timezone for this container
 ENV TZ Etc/UTC
